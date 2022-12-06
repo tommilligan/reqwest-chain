@@ -1,9 +1,8 @@
 use reqwest::Client;
+use reqwest_chain::{ChainMiddleware, Chainer};
 use reqwest_middleware::{ClientBuilder, Error};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-
-use reqwest_chain::{ChainAction, ChainMiddleware, Chainer};
 
 struct RetryOnServerError {
     pub retries: u32,
@@ -18,13 +17,13 @@ impl Chainer for RetryOnServerError {
         result: Result<reqwest::Response, Error>,
         state: &mut Self::State,
         _request: &mut reqwest::Request,
-    ) -> Result<ChainAction, Error> {
+    ) -> Result<Option<reqwest::Response>, Error> {
         *state += 1;
         let response = result?;
         if response.status().is_server_error() && *state < self.retries {
-            Ok(ChainAction::Retry)
+            Ok(None)
         } else {
-            Ok(ChainAction::Response(response))
+            Ok(Some(response))
         }
     }
 }

@@ -1,6 +1,6 @@
 //! `ChainMiddleware` implements retrying requests on given conditions.
 
-use crate::chainable::{ChainMiddleware, Chainer, ChainAction};
+use crate::chainable::{ChainMiddleware, Chainer};
 use anyhow::anyhow;
 use reqwest::{Request, Response};
 use reqwest_middleware::{Error, Middleware, Next, Result};
@@ -59,14 +59,13 @@ where
         })?;
         let result = next.clone().run(duplicate_request, ext).await;
 
-        let action = chain_middleware.chain(result, &mut request_state, &mut request).await?;
-        match action {
-            ChainAction::Retry => {
-                n_past_retries += 1;
-            }
-            ChainAction::Response(response) => {
-                return Ok(response)
-            }
-        };
+        let action = chain_middleware
+            .chain(result, &mut request_state, &mut request)
+            .await?;
+        if let Some(response) = action {
+            return Ok(response);
+        } else {
+            n_past_retries += 1;
+        }
     }
 }

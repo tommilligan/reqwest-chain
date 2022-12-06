@@ -1,10 +1,5 @@
 use reqwest_middleware::Error;
 
-pub enum ChainAction {
-    Retry,
-    Response(reqwest::Response),
-}
-
 /// Describes:
 ///
 /// - which request outcomes should be retried
@@ -34,7 +29,7 @@ pub trait Chainer {
         result: Result<reqwest::Response, Error>,
         state: &mut Self::State,
         request: &mut reqwest::Request,
-    ) -> Result<ChainAction, Error>;
+    ) -> Result<Option<reqwest::Response>, Error>;
 
     /// Safety valve to protect against infinite chaining.
     ///

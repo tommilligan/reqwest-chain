@@ -7,7 +7,7 @@
 //!
 //! ```
 //! use reqwest::{header::{AUTHORIZATION, HeaderValue}, StatusCode};
-//! use reqwest_chain::{ChainAction, Chainer, ChainMiddleware};
+//! use reqwest_chain::{Chainer, ChainMiddleware};
 //! use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Error};
 //!
 //! // Mimic some external function that returns a valid token.
@@ -26,20 +26,20 @@
 //!         result: Result<reqwest::Response, Error>,
 //!         _state: &mut Self::State,
 //!         request: &mut reqwest::Request,
-//!     ) -> Result<ChainAction, Error> {
+//!     ) -> Result<Option<reqwest::Response>, Error> {
 //!         let response = result?;
 //!         if response.status() != StatusCode::UNAUTHORIZED {
-//!             return Ok(ChainAction::Response(response))
+//!             return Ok(Some(response))
 //!         };
 //!         request.headers_mut().insert(
 //!             AUTHORIZATION,
 //!             HeaderValue::from_str(&format!("Bearer {}", fetch_token())).expect("invalid header value"),
 //!         );
-//!         Ok(ChainAction::Retry)
+//!         Ok(None)
 //!     }
 //! }
 //!
-//! async fn run_retries() {
+//! async fn run() {
 //!     let client = ClientBuilder::new(reqwest::Client::new())
 //!         .with(ChainMiddleware(FetchTokenChainer))
 //!         .build();
@@ -57,4 +57,4 @@
 mod chainable;
 mod middleware;
 
-pub use chainable::{ChainMiddleware, Chainer, ChainAction};
+pub use chainable::{ChainMiddleware, Chainer};

@@ -1,13 +1,12 @@
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 use reqwest::Client;
 use reqwest::StatusCode;
+use reqwest_chain::{ChainMiddleware, Chainer};
 use reqwest_middleware::{ClientBuilder, Error};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-
-use reqwest_chain::{ChainMiddleware, Chainer, ChainAction};
 
 #[derive(Default)]
 struct RegenerateTokenChainer {
@@ -23,10 +22,10 @@ impl Chainer for RegenerateTokenChainer {
         result: Result<reqwest::Response, Error>,
         _state: &mut Self::State,
         request: &mut reqwest::Request,
-    ) -> Result<ChainAction, Error> {
+    ) -> Result<Option<reqwest::Response>, Error> {
         let response = result?;
         if response.status() != StatusCode::UNAUTHORIZED {
-            return Ok(ChainAction::Response(response))
+            return Ok(Some(response));
         };
 
         let mut auth_token = self.auth_token.lock().await;
@@ -36,7 +35,7 @@ impl Chainer for RegenerateTokenChainer {
             AUTHORIZATION,
             HeaderValue::from_str(&format!("{auth_token}")).expect("invalid header value"),
         );
-        Ok(ChainAction::Retry)
+        Ok(None)
     }
 }
 
