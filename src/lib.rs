@@ -48,6 +48,8 @@
 //!
 //!     client
 //!         .get("https://example.org")
+//!         // If this token is invalid, the request will be automatically retried
+//!         // with an updated token.
 //!         .header(AUTHORIZATION, "Bearer expired-token")
 //!         .send()
 //!         .await

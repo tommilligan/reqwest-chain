@@ -11,10 +11,11 @@ pub trait Chainer {
     /// Inspect the result of the previous request, to decide whether to make
     /// another request.
     ///
-    /// If another request is required, update the previous request to form the
-    /// next request in the chain, and return `ChainAction::Retry`.
+    /// - If another request is required, update the previous request to form the
+    /// next request in the chain, and return `Ok(None)`.
+    /// - If the response is ready, return it inside `Ok(Some(response))`.
+    /// - If an error occurs and you cannot continue, return `Err(error)`.
     ///
-    /// If the response is ready, return it inside `ChainAction::Response`.
     /// Returning a response, or an error, will result in termination of the chain.
     ///
     /// Information is available from:
