@@ -42,7 +42,7 @@ async fn retry_works() {
 
     let reqwest_client = Client::builder().build().unwrap();
     let client = ClientBuilder::new(reqwest_client)
-        .with(ChainMiddleware(RetryOnServerError { retries: 5 }))
+        .with(ChainMiddleware::new(RetryOnServerError { retries: 5 }))
         .build();
 
     let response = client

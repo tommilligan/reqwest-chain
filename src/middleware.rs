@@ -22,7 +22,7 @@ where
         // downstream. This will guard against previous retries poluting `Extensions`.
         // That is, we only return what's populated in the typemap for the last retry attempt
         // and copy those into the the `global` Extensions map.
-        execute_with_chain(&self.0, req, next, extensions).await
+        execute_with_chain(self.inner(), req, next, extensions).await
     }
 }
 

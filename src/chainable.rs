@@ -44,4 +44,18 @@ pub trait Chainer {
     }
 }
 
-pub struct ChainMiddleware<T>(pub T);
+pub struct ChainMiddleware<T> {
+    inner: T,
+}
+
+impl<T> ChainMiddleware<T> {
+    pub fn new(inner: T) -> Self {
+        Self {
+            inner
+        }
+    }
+
+    pub(crate) fn inner(&self) -> &T {
+        &self.inner
+    }
+}

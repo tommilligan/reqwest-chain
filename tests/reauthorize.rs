@@ -63,7 +63,7 @@ async fn regenerate_token_works() {
 
     let reqwest_client = Client::builder().build().unwrap();
     let client = ClientBuilder::new(reqwest_client)
-        .with(ChainMiddleware(RegenerateTokenChainer::default()))
+        .with(ChainMiddleware::new(RegenerateTokenChainer::default()))
         .build();
 
     let response = client

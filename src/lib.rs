@@ -43,7 +43,7 @@
 //!
 //! async fn run() {
 //!     let client = ClientBuilder::new(reqwest::Client::new())
-//!         .with(ChainMiddleware(FetchTokenMiddleware))
+//!         .with(ChainMiddleware::new(FetchTokenMiddleware))
 //!         .build();
 //!
 //!     client
