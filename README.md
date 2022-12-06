@@ -20,37 +20,35 @@ fn fetch_token() -> String {
     "valid-token".to_string()
 }
 
-struct FetchTokenChainer;
+struct FetchTokenMiddleware;
 
 #[async_trait::async_trait]
-impl Chainer for FetchTokenChainer {
+impl Chainer for FetchTokenMiddleware {
+    // We don't need it here, but you can choose to keep track of state between
+    // chained retries.
     type State = ();
-
-    // Retry if the server tells us we are unauthorized (the token has expired)
-    fn should_chain(&self, result: &Result<reqwest::Response, Error>) -> bool {
-        result
-            .as_ref()
-            .map(|response| response.status() == StatusCode::UNAUTHORIZED)
-            .unwrap_or_default()
-    }
 
     async fn chain(
         &self,
-        _result: Result<reqwest::Response, Error>,
+        result: Result<reqwest::Response, Error>,
         _state: &mut Self::State,
         request: &mut reqwest::Request,
-    ) -> Result<(), Error> {
+    ) -> Result<Option<reqwest::Response>, Error> {
+        let response = result?;
+        if response.status() != StatusCode::UNAUTHORIZED {
+            return Ok(Some(response))
+        };
         request.headers_mut().insert(
             AUTHORIZATION,
             HeaderValue::from_str(&format!("Bearer {}", fetch_token())).expect("invalid header value"),
         );
-        Ok(())
+        Ok(None)
     }
 }
 
-async fn run_retries() {
+async fn run() {
     let client = ClientBuilder::new(reqwest::Client::new())
-        .with(ChainMiddleware(FetchTokenChainer))
+        .with(ChainMiddleware(FetchTokenMiddleware))
         .build();
 
     client

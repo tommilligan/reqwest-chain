@@ -15,10 +15,12 @@
 //!     "valid-token".to_string()
 //! }
 //!
-//! struct FetchTokenChainer;
+//! struct FetchTokenMiddleware;
 //!
 //! #[async_trait::async_trait]
-//! impl Chainer for FetchTokenChainer {
+//! impl Chainer for FetchTokenMiddleware {
+//!     // We don't need it here, but you can choose to keep track of state between
+//!     // chained retries.
 //!     type State = ();
 //!
 //!     async fn chain(
@@ -41,7 +43,7 @@
 //!
 //! async fn run() {
 //!     let client = ClientBuilder::new(reqwest::Client::new())
-//!         .with(ChainMiddleware(FetchTokenChainer))
+//!         .with(ChainMiddleware(FetchTokenMiddleware))
 //!         .build();
 //!
 //!     client
