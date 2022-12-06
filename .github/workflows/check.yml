@@ -4,7 +4,6 @@ name: check
 
 jobs:
   detailed-test:
-    needs: fast-test
     name: Test main target
     runs-on: ubuntu-22.04
     steps:

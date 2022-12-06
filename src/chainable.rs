@@ -50,9 +50,7 @@ pub struct ChainMiddleware<T> {
 
 impl<T> ChainMiddleware<T> {
     pub fn new(inner: T) -> Self {
-        Self {
-            inner
-        }
+        Self { inner }
     }
 
     pub(crate) fn inner(&self) -> &T {
