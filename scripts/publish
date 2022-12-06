@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+eprintln "Logging in"
+cargo login
+
+eprintln "Publishing"
+cargo publish

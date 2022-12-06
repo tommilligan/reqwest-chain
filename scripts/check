@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+eprintln "Formatting sources"
+cargo fmt -- --check
+
+eprintln "Linting sources"
+cargo clippy --all-targets -- -D warnings
+
+eprintln "Running tests"
+cargo test
