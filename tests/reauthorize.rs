@@ -7,7 +7,7 @@ use tokio::sync::Mutex;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-use reqwest_chain::{ChainMiddleware, Chainer};
+use reqwest_chain::{ChainMiddleware, Chainer, ChainAction};
 
 #[derive(Default)]
 struct RegenerateTokenChainer {
@@ -18,19 +18,17 @@ struct RegenerateTokenChainer {
 impl Chainer for RegenerateTokenChainer {
     type State = ();
 
-    fn should_chain(&self, result: &Result<reqwest::Response, Error>) -> bool {
-        result
-            .as_ref()
-            .map(|response| response.status() == StatusCode::UNAUTHORIZED)
-            .unwrap_or_default()
-    }
-
     async fn chain(
         &self,
-        _result: Result<reqwest::Response, Error>,
+        result: Result<reqwest::Response, Error>,
         _state: &mut Self::State,
         request: &mut reqwest::Request,
-    ) -> Result<(), Error> {
+    ) -> Result<ChainAction, Error> {
+        let response = result?;
+        if response.status() != StatusCode::UNAUTHORIZED {
+            return Ok(ChainAction::Response(response))
+        };
+
         let mut auth_token = self.auth_token.lock().await;
         *auth_token += 1;
 
@@ -38,7 +36,7 @@ impl Chainer for RegenerateTokenChainer {
             AUTHORIZATION,
             HeaderValue::from_str(&format!("{auth_token}")).expect("invalid header value"),
         );
-        Ok(())
+        Ok(ChainAction::Retry)
     }
 }
 

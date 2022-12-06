@@ -7,7 +7,7 @@
 //!
 //! ```
 //! use reqwest::{header::{AUTHORIZATION, HeaderValue}, StatusCode};
-//! use reqwest_chain::{Chainer, ChainMiddleware};
+//! use reqwest_chain::{ChainAction, Chainer, ChainMiddleware};
 //! use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Error};
 //!
 //! // Mimic some external function that returns a valid token.
@@ -21,25 +21,21 @@
 //! impl Chainer for FetchTokenChainer {
 //!     type State = ();
 //!
-//!     // Retry if the server tells us we are unauthorized (the token has expired)
-//!     fn should_chain(&self, result: &Result<reqwest::Response, Error>) -> bool {
-//!         result
-//!             .as_ref()
-//!             .map(|response| response.status() == StatusCode::UNAUTHORIZED)
-//!             .unwrap_or_default()
-//!     }
-//!
 //!     async fn chain(
 //!         &self,
-//!         _result: Result<reqwest::Response, Error>,
+//!         result: Result<reqwest::Response, Error>,
 //!         _state: &mut Self::State,
 //!         request: &mut reqwest::Request,
-//!     ) -> Result<(), Error> {
+//!     ) -> Result<ChainAction, Error> {
+//!         let response = result?;
+//!         if response.status() != StatusCode::UNAUTHORIZED {
+//!             return Ok(ChainAction::Response(response))
+//!         };
 //!         request.headers_mut().insert(
 //!             AUTHORIZATION,
 //!             HeaderValue::from_str(&format!("Bearer {}", fetch_token())).expect("invalid header value"),
 //!         );
-//!         Ok(())
+//!         Ok(ChainAction::Retry)
 //!     }
 //! }
 //!
@@ -61,4 +57,4 @@
 mod chainable;
 mod middleware;
 
-pub use chainable::{ChainMiddleware, Chainer};
+pub use chainable::{ChainMiddleware, Chainer, ChainAction};
