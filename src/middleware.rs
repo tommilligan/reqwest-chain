@@ -2,9 +2,9 @@
 
 use crate::chainable::{ChainMiddleware, Chainer};
 use anyhow::anyhow;
+use http::Extensions;
 use reqwest::{Request, Response};
 use reqwest_middleware::{Error, Middleware, Next, Result};
-use task_local_extensions::Extensions;
 
 #[async_trait::async_trait]
 impl<T, S> Middleware for ChainMiddleware<T>
