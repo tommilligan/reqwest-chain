@@ -1,3 +1,4 @@
+use reqwest_middleware::reqwest::{Request, Response};
 use reqwest_middleware::Error;
 
 /// Describes:
@@ -27,10 +28,10 @@ pub trait Chainer {
     /// Global side effects can be managed via interior mutability of `self`.
     async fn chain(
         &self,
-        result: Result<reqwest::Response, Error>,
+        result: Result<Response, Error>,
         state: &mut Self::State,
-        request: &mut reqwest::Request,
-    ) -> Result<Option<reqwest::Response>, Error>;
+        request: &mut Request,
+    ) -> Result<Option<Response>, Error>;
 
     /// Safety valve to protect against infinite chaining.
     ///

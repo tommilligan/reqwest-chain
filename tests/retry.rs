@@ -1,5 +1,5 @@
-use reqwest::Client;
 use reqwest_chain::{ChainMiddleware, Chainer};
+use reqwest_middleware::reqwest::{Client, Request, Response};
 use reqwest_middleware::{ClientBuilder, Error};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -14,10 +14,10 @@ impl Chainer for RetryOnServerError {
 
     async fn chain(
         &self,
-        result: Result<reqwest::Response, Error>,
+        result: Result<Response, Error>,
         state: &mut Self::State,
-        _request: &mut reqwest::Request,
-    ) -> Result<Option<reqwest::Response>, Error> {
+        _request: &mut Request,
+    ) -> Result<Option<Response>, Error> {
         *state += 1;
         let response = result?;
         if response.status().is_server_error() && *state < self.retries {
@@ -46,7 +46,7 @@ async fn retry_works() {
         .build();
 
     let response = client
-        .get(&format!("{}/ping", server.uri()))
+        .get(format!("{}/ping", server.uri()))
         .send()
         .await
         .expect("call failed");

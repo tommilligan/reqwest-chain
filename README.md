@@ -35,8 +35,9 @@ method to make a decision after each request respones:
 Below is the initial use case; refresh some authorization credential on request failure.
 
 ```rust
-use reqwest::{header::{AUTHORIZATION, HeaderValue}, StatusCode};
 use reqwest_chain::{Chainer, ChainMiddleware};
+use reqwest_middleware::reqwest::{Client, Request, Response, StatusCode};
+use reqwest_middleware::reqwest::header::{AUTHORIZATION, HeaderValue};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Error};
 
 // Mimic some external function that returns a valid token.
@@ -54,10 +55,10 @@ impl Chainer for FetchTokenMiddleware {
 
     async fn chain(
         &self,
-        result: Result<reqwest::Response, Error>,
+        result: Result<Response, Error>,
         _state: &mut Self::State,
-        request: &mut reqwest::Request,
-    ) -> Result<Option<reqwest::Response>, Error> {
+        request: &mut Request,
+    ) -> Result<Option<Response>, Error> {
         let response = result?;
         if response.status() != StatusCode::UNAUTHORIZED {
             return Ok(Some(response))
@@ -71,14 +72,14 @@ impl Chainer for FetchTokenMiddleware {
 }
 
 async fn run() {
-    let client = ClientBuilder::new(reqwest::Client::new())
+    let client = ClientBuilder::new(Client::new())
         .with(ChainMiddleware::new(FetchTokenMiddleware))
         .build();
 
     client
         .get("https://example.org")
-        // If this request fails, this will be automatically retried with an
-        // updated header value.
+        // If this token is invalid, the request will be automatically retried
+        // with an updated token.
         .header(AUTHORIZATION, "Bearer expired-token")
         .send()
         .await

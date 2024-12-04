@@ -3,7 +3,7 @@
 use crate::chainable::{ChainMiddleware, Chainer};
 use anyhow::anyhow;
 use http::Extensions;
-use reqwest::{Request, Response};
+use reqwest_middleware::reqwest::{Request, Response};
 use reqwest_middleware::{Error, Middleware, Next, Result};
 
 #[async_trait::async_trait]
