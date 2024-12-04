@@ -1,7 +1,6 @@
-use reqwest::header::{HeaderValue, AUTHORIZATION};
-use reqwest::Client;
-use reqwest::StatusCode;
 use reqwest_chain::{ChainMiddleware, Chainer};
+use reqwest_middleware::reqwest::header::{HeaderValue, AUTHORIZATION};
+use reqwest_middleware::reqwest::{Client, Request, Response, StatusCode};
 use reqwest_middleware::{ClientBuilder, Error};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -19,10 +18,10 @@ impl Chainer for RegenerateTokenChainer {
 
     async fn chain(
         &self,
-        result: Result<reqwest::Response, Error>,
+        result: Result<Response, Error>,
         _state: &mut Self::State,
-        request: &mut reqwest::Request,
-    ) -> Result<Option<reqwest::Response>, Error> {
+        request: &mut Request,
+    ) -> Result<Option<Response>, Error> {
         let response = result?;
         if response.status() != StatusCode::UNAUTHORIZED {
             return Ok(Some(response));
@@ -67,7 +66,7 @@ async fn regenerate_token_works() {
         .build();
 
     let response = client
-        .get(&format!("{}/ping", server.uri()))
+        .get(format!("{}/ping", server.uri()))
         .header(AUTHORIZATION, "0")
         .timeout(std::time::Duration::from_millis(100))
         .send()
