@@ -1,5 +1,5 @@
 use reqwest_chain::{ChainMiddleware, Chainer};
-use reqwest_middleware::reqwest::header::{HeaderValue, AUTHORIZATION};
+use reqwest_middleware::reqwest::header::{AUTHORIZATION, HeaderValue};
 use reqwest_middleware::reqwest::{Client, Request, Response, StatusCode};
 use reqwest_middleware::{ClientBuilder, Error};
 use std::sync::Arc;
