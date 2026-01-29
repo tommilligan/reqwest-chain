@@ -1,6 +1,6 @@
 [package]
 name = "reqwest-chain"
-version = "1.0.0"
+version = "2.0.0"
 edition = "2024"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]

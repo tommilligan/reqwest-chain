@@ -1,5 +1,12 @@
 # Unreleased
 
+# v2.0.0
+
+## Changed
+
+- Upgraded to `reqwest-middleware 0.5`. Thanks to [@DanielleHuisman](https://github.com/DanielleHuisman) for this! ([#7](https://github.com/tommilligan/reqwest-chain/pull/7))
+- Updated various internal dependencies and actions ([#8](https://github.com/tommilligan/reqwest-chain/pull/8))
+
 # v1.0.0
 
 This release updates outdated dependencies.
