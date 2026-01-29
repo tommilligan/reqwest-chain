@@ -1,5 +1,5 @@
-use reqwest_middleware::reqwest::{Request, Response};
 use reqwest_middleware::Error;
+use reqwest_middleware::reqwest::{Request, Response};
 
 /// Describes:
 ///
