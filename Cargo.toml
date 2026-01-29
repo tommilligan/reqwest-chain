@@ -15,7 +15,7 @@ readme = "README.md"
 anyhow = "1.0.66"
 async-trait = "0.1.59"
 http = "1.0.0"
-reqwest-middleware = { version = "0.4", default-features = false }
+reqwest-middleware = { version = "0.5", default-features = false }
 
 [dev-dependencies]
 tokio = { version = "1.23.0", features = ["rt", "macros"] }
